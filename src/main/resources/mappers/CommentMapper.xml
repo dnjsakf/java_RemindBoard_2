@@ -1,0 +1,73 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//org.mybatis/DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="my.remind.board2.mapper.CommentMapper">
+	<!-- Getters -->
+	<!-- TODO: getComment : 특정 댓글 가져오기 -->
+	<select id="getComment" parameterType="hashmap" resultType="my.remind.board2.vo.CommentVO">
+		SELECT *
+		FROM board_comment
+		WHERE boardNo = #{boardNo}
+		AND no = #{no}
+	</select>
+	
+	<!-- TODO: getComments : 댓글 목록 가져오기 -->
+	<select id="getComments" parameterType="hashmap" resultType="my.remind.board2.vo.CommentVO">
+		SELECT *
+		FROM board_comment
+		WHERE boardNo = #{boardNo}
+		ORDER BY no DESC
+		LIMIT #{start}, #{count}
+	</select>	
+	
+	<!-- Setters -->
+	<!-- TODO: insertComment : 댓글 입력 -->
+	<insert id="insertComment" parameterType="my.remind.board2.vo.CommentVO">
+		INSERT INTO board_comment(
+			writer,
+			date,
+			password,
+			comment,
+			boardNo
+		) VALUES (
+			#{writer},
+			#{date},
+			#{password},
+			#{comment},
+			#{boardNo}
+		)
+	</insert>
+	<!-- TODO: updateComment : 댓글 수정  : 이건 AJAX로 처리해야할 듯 -->
+	<update id="updateComment" parameterType="my.remind.board2.vo.CommentVO">
+		UPDATE board_comment
+		SET date = #{date},
+			comment = #{comment}
+		WHERE boardNo = #{boardNo}
+		AND no = #{no}
+	</update>
+	<!-- TODO: deleteComment : 댓글 삭제  : 댓글ID/비밀번호/작성글ID 가 모두 일치해야됨 -->
+	<delete id="deleteComment" parameterType="hashmap">
+		DELETE FROM board_comment
+		WHERE boardNo = #{boardNo}
+		AND no = #{no}
+	</delete>
+	<!-- 수정이나 삭제할 때는 여기서 비밀번호를 비교하는게 아니라, 우선 비교하고 여기로 넘어와야됨 -->
+	
+	<!-- Checkers -->
+	<!-- 최대로 보여줄 페이지 수를 정해서 제한을 걸어놔야지  안그러면 나중에 페이지 수 많아지면 감당안됨 -->
+	<!-- TODO: existNextComment : 다음 댓글 페이지가 있는지 -->
+	<select id="existNextComment" parameterType="hashmap" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM board_comment
+		WHERE boardNo = #{boardNo}
+		AND no <![CDATA[ < ]]> #{no}
+	</select>
+	<!-- TODO: existPrevComment : 이전 댓글 페이지가 있는지 -->
+	<select id="existPrevComment" parameterType="hashmap" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM board_comment
+		WHERE boardNo = #{boardNo}
+		AND no <![CDATA[ > ]]> #{no}
+	</select>	
+</mapper>

@@ -1,0 +1,119 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+		PUBLIC "-//org.mybatis/DTD Mapper 3.0//EN"
+		"http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<!-- 
+	// 마지막 게시글의 아이디를 가져옴, 게시글을 추가할 때 사용됨.
+	int getLastContentId();
+	
+	// 특정 게시글 가져오기
+	ContentVO getContent(int contentId );
+	
+	// 게시글 목록 가져오기
+	ArrayList<ContentVO> getContents(int pageNumber);
+	
+	void insertContent(ContentVO content);	// 게시글 등록
+	void updateContent(ContentVO content);	// 게시글 수정
+	void visibleContent(int contentId, int visivility);	// 게시글 숨기기/보이기
+	void deleteContent(int contentId);		// 게시글 삭제
+	int existNextPage(int lastContentId);	// 다음 페이지가 존재하는지 확인
+	int existPrevPage(int firstContentId);	// 이전 페이지가 존재하는지 확인
+
+ -->
+
+<mapper namespace="my.remind.board2.mapper.ContentMapper">
+	
+	<!-- Getters -->
+	<!-- TODO: 총 게시글 수 가져오기 -->
+	<select id="getAllContentCount" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM board
+		WHERE boardAvailable = 1
+	</select>
+	
+	<!-- TODO: 마지막 게시글 ID 가져오기 -->
+	<select id="getLastContentId" resultType="java.lang.Integer">
+		SELECT boardNo
+		FROM board
+		ORDER BY boardNo DESC
+		LIMIT 1
+	</select>
+	
+	<!-- TODO: 특정 게시글 가져오기 -->
+	<select id="getContent" parameterType="java.lang.Integer" resultType="my.remind.board2.vo.ContentVO">
+		SELECT *
+		FROM board
+		WHERE boardAvailable = 1
+		AND boardNo = #{boardNo}
+	</select>
+	
+	<!-- TODO: 게시글 목록 가져오기 -->
+	<select id="getContents" parameterType="hashmap" resultType="my.remind.board2.vo.ContentVO">
+		SELECT *
+		FROM board
+		WHERE boardAvailable = 1
+		ORDER BY boardNo DESC
+		LIMIT #{firstNo}, #{viewCount}
+	</select>
+	
+	<!-- Setters -->
+	<!-- TODO: 게시글 등록 -->
+	<insert id="insertContent" parameterType="my.remind.board2.vo.ContentVO" >
+		INSERT INTO board (
+			boardNo,
+			boardTitle,
+			boardWriter,
+			boardDate,
+			boardContent,
+			boardAvailable
+		) VALUES (
+			#{boardNo},
+			#{boardTitle},
+			#{boardWriter},
+			#{boardDate},
+			#{boardContent},
+			#{boardAvailable}
+		)
+	</insert>
+	
+	<!-- TODO: 게시글 수정 -->
+	<update id="updateContent" parameterType="my.remind.board2.vo.ContentVO">
+		UPDATE board
+		SET boardTitle = #{boardTitle},
+			boardDate = #{boardDate},
+			boardContent = #{boardContent}
+		WHERE boardNo = #{boardNo}
+	</update>
+	
+	<!-- TODO: 게시글 삭제 -->
+	<delete id="deleteContent" parameterType="java.lang.Integer">
+		DELETE FROM board
+		WHERE boardNo = #{contentId}
+	</delete>
+	
+	<!-- TODO: 게시글 숨기기/보이기 -->
+	<update id="visibleContent" parameterType="hashmap">
+		UPDATE board
+		SET boardAvailable = #{visibility}
+		WHERE boardNo = #{contentId}
+	</update>
+	
+	<!-- Checkers -->
+	<!-- TODO: 다음 페이지가 존재하는지 확인 -->
+	<select id="existNextPage" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM board
+		WHERE boardAvailable = 1
+		AND boardNo <![CDATA[ < ]]> #{boardNo}
+	</select>
+	
+	<!-- TODO: 이전 페이지가 존재하는지 혹인 -->
+	<select id="existPrevPage" parameterType="java.lang.Integer" resultType="java.lang.Integer">
+		SELECT count(*)
+		FROM board
+		WHERE boardAvailable = 1
+		AND boardNo <![CDATA[ > ]]> #{boardNo}	
+	</select>
+	
+</mapper>
